@@ -22,6 +22,7 @@ export const useAuth = () => {
   const navigate = useNavigate();
 
   // 获取当前用户信息（从后端同步）
+  // 注意：api.ts 拦截器已返回 response.data，所以 res 本身就是 { code, message, data }
   const fetchUserInfo = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -31,8 +32,8 @@ export const useAuth = () => {
     setLoading(true);
     try {
       const res = await api.get('/auth/me') as any;
-      if (res.data.code === 200) {
-        const info = res.data.data as UserInfo;
+      if (res.code === 200) {
+        const info = res.data as UserInfo;
         setUserInfo(info);
         localStorage.setItem('userInfo', JSON.stringify(info));
       }
@@ -49,13 +50,13 @@ export const useAuth = () => {
   const login = async (username: string, password: string) => {
     try {
       const res = await api.post('/auth/login', { username, password }) as any;
-      if (res.data.code === 200) {
-        const { token } = res.data.data;
+      if (res.code === 200) {
+        const { token } = res.data as { token: string; expiresIn: number };
         localStorage.setItem('token', token);
         await fetchUserInfo();
         return { success: true };
       }
-      return { success: false, message: res.data.message };
+      return { success: false, message: res.message };
     } catch (error: any) {
       return {
         success: false,
@@ -84,7 +85,7 @@ export const useAuth = () => {
   }, []);
 
   return {
-    user: userInfo,         // 前端组件用 user
+    user: userInfo,
     userInfo,
     loading,
     login,

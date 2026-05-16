@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Spin } from 'antd';
 import Login from './pages/Login';
 import StudentLayout from './layouts/StudentLayout';
@@ -15,12 +15,13 @@ import { authService } from './services/auth';
 const RouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [checking, setChecking] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const user = authService.getSavedUser();
 
     if (!user) {
-      window.location.href = '/login';
+      navigate('/login', { replace: true });
       return;
     }
 
@@ -28,18 +29,18 @@ const RouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
     // STUDENT 不可访问管理端路由
     if (path.startsWith('/admin') && user.userType !== 'ADMIN') {
-      window.location.href = '/403';
+      navigate('/403', { replace: true });
       return;
     }
 
     // ADMIN 访问学生端根路径时重定向到 /admin
     if (path.startsWith('/student') && user.userType === 'ADMIN') {
-      window.location.href = '/admin';
+      navigate('/admin', { replace: true });
       return;
     }
 
     setChecking(false);
-  }, [location.pathname]);
+  }, [location.pathname, navigate]);
 
   if (checking) {
     return (

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Layout, Menu, Button, Space, Typography } from 'antd';
+import { Layout, Menu, Button, Space, Typography, type MenuProps } from 'antd';
 import {
   DashboardOutlined,
   HomeOutlined,
@@ -25,61 +25,53 @@ const AdminLayout: React.FC = () => {
   const location = useLocation();
 
   // 根据权限动态生成菜单
-  const menuItems = [
+  const menuItems: MenuProps['items'] = [
     {
       key: '/admin',
       icon: <DashboardOutlined />,
       label: <Link to="/admin">仪表盘</Link>,
     },
-    {
+    ...(hasPermission('room:manage') ? [{
       key: '/admin/rooms',
       icon: <HomeOutlined />,
       label: <Link to="/admin/rooms">自习室管理</Link>,
-      show: hasPermission('room:manage'),
-    },
-    {
+    }] : []),
+    ...(hasPermission('seat:manage') ? [{
       key: '/admin/seats',
       icon: <TableOutlined />,
       label: <Link to="/admin/seats">座位管理</Link>,
-      show: hasPermission('seat:manage'),
-    },
-    {
+    }] : []),
+    ...((hasPermission('reservation:view') || hasPermission('reservation:manage')) ? [{
       key: '/admin/reservations',
       icon: <BookOutlined />,
       label: <Link to="/admin/reservations">预约管理</Link>,
-      show: hasPermission('reservation:view') || hasPermission('reservation:manage'),
-    },
-    {
+    }] : []),
+    ...(hasPermission('violation:view') ? [{
       key: '/admin/violations',
       icon: <WarningOutlined />,
       label: <Link to="/admin/violations">违约管理</Link>,
-      show: hasPermission('violation:view'),
-    },
-    {
+    }] : []),
+    ...(hasPermission('room:manage') ? [{
       key: '/admin/checkin-codes',
       icon: <QrcodeOutlined />,
       label: <Link to="/admin/checkin-codes">签到编码</Link>,
-      show: hasPermission('room:manage'),
-    },
-    {
+    }] : []),
+    ...(hasPermission('user:manage') ? [{
       key: '/admin/users',
       icon: <UserOutlined />,
       label: <Link to="/admin/users">用户管理</Link>,
-      show: hasPermission('user:manage'),
-    },
-    {
+    }] : []),
+    ...(hasPermission('role:manage') ? [{
       key: '/admin/roles',
       icon: <SafetyOutlined />,
       label: <Link to="/admin/roles">角色管理</Link>,
-      show: hasPermission('role:manage'),
-    },
-    {
+    }] : []),
+    ...(hasPermission('system:config') ? [{
       key: '/admin/config',
       icon: <SettingOutlined />,
       label: <Link to="/admin/config">系统参数</Link>,
-      show: hasPermission('system:config'),
-    },
-  ].filter(item => item.show !== false);  // 过滤掉 show=false 的项
+    }] : []),
+  ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
