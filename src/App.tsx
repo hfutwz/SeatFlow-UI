@@ -19,6 +19,10 @@ import RoomDetailPage from './pages/student/RoomDetailPage'
 // Student pages (M3)
 import MyReservations from './pages/student/MyReservations'
 
+// Student pages (M4)
+import CheckInPage from './pages/student/CheckInPage'
+import MyViolations from './pages/student/MyViolations'
+
 // Admin pages (M2)
 import RoomManage from './pages/admin/RoomManage'
 import SeatManage from './pages/admin/SeatManage'
@@ -26,19 +30,18 @@ import SeatManage from './pages/admin/SeatManage'
 // Admin pages (M3)
 import ReservationManage from './pages/admin/ReservationManage'
 
+// Admin pages (M4)
+import ViolationManage from './pages/admin/ViolationManage'
+
 // Student placeholder pages
 const StudentSearch: React.FC = () => <div>搜索座位（M5实现）</div>
-const StudentCheckIn: React.FC = () => <div>签到（M4实现）</div>
-const StudentViolations: React.FC = () => <div>违约记录（M4实现）</div>
 const StudentAssistant: React.FC = () => <div>智能助手（M6实现）</div>
 
 // Admin placeholder pages
 const AdminDashboard: React.FC = () => <div>仪表盘（M5实现）</div>
-const AdminViolations: React.FC = () => <div>违约管理（M4实现）</div>
 const AdminUsers: React.FC = () => <div>用户管理（M5实现）</div>
 const AdminRoles: React.FC = () => <div>角色管理（M5实现）</div>
 const AdminConfig: React.FC = () => <div>系统参数（M5实现）</div>
-const AdminCheckInCodes: React.FC = () => <div>签到编码（M4实现）</div>
 
 // 路由守卫：需要登录
 const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -79,8 +82,8 @@ const App: React.FC = () => {
           <Route path="rooms/:id" element={<RoomDetailPage />} />
           <Route path="search" element={<StudentSearch />} />
           <Route path="reservations" element={<MyReservations />} />
-          <Route path="check-in" element={<StudentCheckIn />} />
-          <Route path="violations" element={<StudentViolations />} />
+          <Route path="check-in" element={<CheckInPage />} />
+          <Route path="violations" element={<MyViolations />} />
           <Route path="assistant" element={<StudentAssistant />} />
         </Route>
 
@@ -98,11 +101,11 @@ const App: React.FC = () => {
           <Route path="seats" element={<SeatManage />} />
           <Route path="seats/:roomId" element={<SeatManage />} />
           <Route path="reservations" element={<ReservationManage />} />
-          <Route path="violations" element={<AdminViolations />} />
+          <Route path="violations" element={<ViolationManage />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="roles" element={<AdminRoles />} />
           <Route path="config" element={<AdminConfig />} />
-          <Route path="check-in-codes" element={<AdminCheckInCodes />} />
+          <Route path="check-in-codes" element={<ViolationManage />} />
         </Route>
 
         {/* 错误页面 */}
