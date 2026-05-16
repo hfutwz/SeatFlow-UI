@@ -33,15 +33,17 @@ import ReservationManage from './pages/admin/ReservationManage'
 // Admin pages (M4)
 import ViolationManage from './pages/admin/ViolationManage'
 
+// Admin pages (M5)
+import Dashboard from './pages/admin/Dashboard'
+import UserManage from './pages/admin/UserManage'
+import RoleManage from './pages/admin/RoleManage'
+import SystemConfigPage from './pages/admin/SystemConfigPage'
+
 // Student placeholder pages
 const StudentSearch: React.FC = () => <div>搜索座位（M5实现）</div>
 const StudentAssistant: React.FC = () => <div>智能助手（M6实现）</div>
 
-// Admin placeholder pages
-const AdminDashboard: React.FC = () => <div>仪表盘（M5实现）</div>
-const AdminUsers: React.FC = () => <div>用户管理（M5实现）</div>
-const AdminRoles: React.FC = () => <div>角色管理（M5实现）</div>
-const AdminConfig: React.FC = () => <div>系统参数（M5实现）</div>
+// Admin placeholder pages (removed, implemented in M5)
 
 // 路由守卫：需要登录
 const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -96,15 +98,15 @@ const App: React.FC = () => {
           </RequireAuth>
         }>
           <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="rooms" element={<RoomManage />} />
           <Route path="seats" element={<SeatManage />} />
           <Route path="seats/:roomId" element={<SeatManage />} />
           <Route path="reservations" element={<ReservationManage />} />
           <Route path="violations" element={<ViolationManage />} />
-          <Route path="users" element={<AdminUsers />} />
-          <Route path="roles" element={<AdminRoles />} />
-          <Route path="config" element={<AdminConfig />} />
+          <Route path="users" element={<UserManage />} />
+          <Route path="roles" element={<RoleManage />} />
+          <Route path="config" element={<SystemConfigPage />} />
           <Route path="check-in-codes" element={<ViolationManage />} />
         </Route>
 
