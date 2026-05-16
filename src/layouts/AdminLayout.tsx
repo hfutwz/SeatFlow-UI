@@ -1,122 +1,75 @@
-import React from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Layout, Menu, Button, Space, Typography, type MenuProps } from 'antd';
+import React from 'react'
+import { Layout, Menu, Button, Typography, Space } from 'antd'
+import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import {
   DashboardOutlined,
   HomeOutlined,
-  TableOutlined,
-  BookOutlined,
+  CalendarOutlined,
   WarningOutlined,
-  UserOutlined,
+  TeamOutlined,
   SafetyOutlined,
   SettingOutlined,
-  QrcodeOutlined,
+  KeyOutlined,
   LogoutOutlined,
-} from '@ant-design/icons';
-import { useAuth } from '../hooks/useAuth';
-import { usePermissions } from '../hooks/usePermissions';
+  UserOutlined
+} from '@ant-design/icons'
+import { useAuth } from '../hooks/useAuth'
+import { usePermissions } from '../hooks/usePermissions'
 
-const { Header, Sider, Content } = Layout;
-const { Text } = Typography;
+const { Header, Sider, Content } = Layout
 
 const AdminLayout: React.FC = () => {
-  const { user, logout } = useAuth();
-  const { hasPermission } = usePermissions();
-  const location = useLocation();
+  const { userInfo, logout } = useAuth()
+  const { hasPermission } = usePermissions()
+  const navigate = useNavigate()
+  const location = useLocation()
 
-  // 根据权限动态生成菜单
-  const menuItems: MenuProps['items'] = [
-    {
-      key: '/admin',
-      icon: <DashboardOutlined />,
-      label: <Link to="/admin">仪表盘</Link>,
-    },
-    ...(hasPermission('room:manage') ? [{
-      key: '/admin/rooms',
-      icon: <HomeOutlined />,
-      label: <Link to="/admin/rooms">自习室管理</Link>,
-    }] : []),
-    ...(hasPermission('seat:manage') ? [{
-      key: '/admin/seats',
-      icon: <TableOutlined />,
-      label: <Link to="/admin/seats">座位管理</Link>,
-    }] : []),
-    ...((hasPermission('reservation:view') || hasPermission('reservation:manage')) ? [{
-      key: '/admin/reservations',
-      icon: <BookOutlined />,
-      label: <Link to="/admin/reservations">预约管理</Link>,
-    }] : []),
-    ...(hasPermission('violation:view') ? [{
-      key: '/admin/violations',
-      icon: <WarningOutlined />,
-      label: <Link to="/admin/violations">违约管理</Link>,
-    }] : []),
-    ...(hasPermission('room:manage') ? [{
-      key: '/admin/checkin-codes',
-      icon: <QrcodeOutlined />,
-      label: <Link to="/admin/checkin-codes">签到编码</Link>,
-    }] : []),
-    ...(hasPermission('user:manage') ? [{
-      key: '/admin/users',
-      icon: <UserOutlined />,
-      label: <Link to="/admin/users">用户管理</Link>,
-    }] : []),
-    ...(hasPermission('role:manage') ? [{
-      key: '/admin/roles',
-      icon: <SafetyOutlined />,
-      label: <Link to="/admin/roles">角色管理</Link>,
-    }] : []),
-    ...(hasPermission('system:config') ? [{
-      key: '/admin/config',
-      icon: <SettingOutlined />,
-      label: <Link to="/admin/config">系统参数</Link>,
-    }] : []),
-  ];
+  const allMenuItems = [
+    { key: '/admin/dashboard', icon: <DashboardOutlined />, label: '仪表盘', permission: 'reservation:view' },
+    { key: '/admin/rooms', icon: <HomeOutlined />, label: '自习室管理', permission: 'room:manage' },
+    { key: '/admin/seats', icon: <HomeOutlined />, label: '座位管理', permission: 'seat:manage' },
+    { key: '/admin/reservations', icon: <CalendarOutlined />, label: '预约管理', permission: 'reservation:view' },
+    { key: '/admin/violations', icon: <WarningOutlined />, label: '违约管理', permission: 'violation:view' },
+    { key: '/admin/users', icon: <TeamOutlined />, label: '用户管理', permission: 'user:manage' },
+    { key: '/admin/roles', icon: <SafetyOutlined />, label: '角色管理', permission: 'role:manage' },
+    { key: '/admin/config', icon: <SettingOutlined />, label: '系统参数', permission: 'system:config' },
+    { key: '/admin/check-in-codes', icon: <KeyOutlined />, label: '签到编码', permission: 'room:manage' },
+  ]
+
+  // 按权限过滤菜单
+  const menuItems = allMenuItems.filter(item => hasPermission(item.permission))
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Header style={{
-        background: '#001529',
-        padding: '0 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}>
+      <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px' }}>
+        <Typography.Title level={4} style={{ color: '#fff', margin: 0 }}>
+          🪑 SeatFlow 管理端
+        </Typography.Title>
         <Space>
-          <Text strong style={{ color: '#fff', fontSize: 18 }}>🎯 SeatFlow</Text>
-          <Text style={{ color: 'rgba(255,255,255,0.65)', marginLeft: 8 }}>管理端</Text>
-        </Space>
-        <Space>
-          <Text style={{ color: 'rgba(255,255,255,0.85)' }}>
-            {user?.realName || user?.username}
-          </Text>
-          <Button
-            type="text"
-            icon={<LogoutOutlined />}
-            style={{ color: 'rgba(255,255,255,0.65)' }}
-            onClick={logout}
-          >
+          <span style={{ color: '#fff' }}>
+            <UserOutlined /> {userInfo?.realName || userInfo?.username}
+          </span>
+          <Button type="text" icon={<LogoutOutlined />} onClick={logout} style={{ color: '#fff' }}>
             退出
           </Button>
         </Space>
       </Header>
-
       <Layout>
-        <Sider width={200} style={{ background: '#fff' }}>
+        <Sider width={200} theme="light">
           <Menu
             mode="inline"
             selectedKeys={[location.pathname]}
-            style={{ height: '100%', borderRight: 0 }}
             items={menuItems}
+            onClick={({ key }) => navigate(key)}
+            style={{ height: '100%', borderRight: 0 }}
           />
         </Sider>
-
-        <Content style={{ padding: 24, background: '#f5f5f5', minHeight: 280 }}>
+        <Content style={{ padding: '24px', margin: 0, minHeight: 280 }}>
           <Outlet />
         </Content>
       </Layout>
     </Layout>
-  );
-};
+  )
+}
 
-export default AdminLayout;
+export default AdminLayout

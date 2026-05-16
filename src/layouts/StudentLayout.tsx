@@ -1,74 +1,62 @@
-import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
-import { Layout, Menu, Button, Space, Typography } from 'antd';
+import React from 'react'
+import { Layout, Menu, Button, Typography, Space } from 'antd'
+import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import {
   HomeOutlined,
   SearchOutlined,
-  BookOutlined,
-  ExceptionOutlined,
+  CalendarOutlined,
+  CheckCircleOutlined,
+  WarningOutlined,
   RobotOutlined,
   LogoutOutlined,
-} from '@ant-design/icons';
-import { useAuth } from '../hooks/useAuth';
+  UserOutlined
+} from '@ant-design/icons'
+import { useAuth } from '../hooks/useAuth'
 
-const { Header, Sider, Content } = Layout;
-const { Text } = Typography;
+const { Header, Content } = Layout
 
 const StudentLayout: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { userInfo, logout } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const menuItems = [
-    { key: '/student', icon: <HomeOutlined />, label: <Link to="/student">自习室</Link> },
-    { key: '/student/search', icon: <SearchOutlined />, label: <Link to="/student/search">搜索座位</Link> },
-    { key: '/student/reservations', icon: <BookOutlined />, label: <Link to="/student/reservations">我的预约</Link> },
-    { key: '/student/violations', icon: <ExceptionOutlined />, label: <Link to="/student/violations">违约记录</Link> },
-    { key: '/student/assistant', icon: <RobotOutlined />, label: <Link to="/student/assistant">智能助手</Link> },
-  ];
+    { key: '/student/rooms', icon: <HomeOutlined />, label: '自习室' },
+    { key: '/student/search', icon: <SearchOutlined />, label: '搜索座位' },
+    { key: '/student/reservations', icon: <CalendarOutlined />, label: '我的预约' },
+    { key: '/student/check-in', icon: <CheckCircleOutlined />, label: '签到' },
+    { key: '/student/violations', icon: <WarningOutlined />, label: '违约记录' },
+    { key: '/student/assistant', icon: <RobotOutlined />, label: '智能助手' },
+  ]
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Header style={{
-        background: '#001529',
-        padding: '0 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}>
+      <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px' }}>
+        <Typography.Title level={4} style={{ color: '#fff', margin: 0 }}>
+          🪑 SeatFlow
+        </Typography.Title>
+        <Menu
+          theme="dark"
+          mode="horizontal"
+          selectedKeys={[location.pathname]}
+          items={menuItems}
+          onClick={({ key }) => navigate(key)}
+          style={{ flex: 1, marginLeft: 24 }}
+        />
         <Space>
-          <Text strong style={{ color: '#fff', fontSize: 18 }}>🎯 SeatFlow</Text>
-          <Text style={{ color: 'rgba(255,255,255,0.65)', marginLeft: 8 }}>学生端</Text>
-        </Space>
-        <Space>
-          <Text style={{ color: 'rgba(255,255,255,0.85)' }}>
-            {user?.realName || user?.username}
-          </Text>
-          <Button
-            type="text"
-            icon={<LogoutOutlined />}
-            style={{ color: 'rgba(255,255,255,0.65)' }}
-            onClick={logout}
-          >
+          <span style={{ color: '#fff' }}>
+            <UserOutlined /> {userInfo?.realName || userInfo?.username}
+          </span>
+          <Button type="text" icon={<LogoutOutlined />} onClick={logout} style={{ color: '#fff' }}>
             退出
           </Button>
         </Space>
       </Header>
-
-      <Layout>
-        <Sider width={200} style={{ background: '#fff' }}>
-          <Menu
-            mode="inline"
-            defaultSelectedKeys={['/student']}
-            style={{ height: '100%', borderRight: 0 }}
-            items={menuItems}
-          />
-        </Sider>
-
-        <Content style={{ padding: 24, background: '#f5f5f5', minHeight: 280 }}>
-          <Outlet />
-        </Content>
-      </Layout>
+      <Content style={{ padding: '24px' }}>
+        <Outlet />
+      </Content>
     </Layout>
-  );
-};
+  )
+}
 
-export default StudentLayout;
+export default StudentLayout

@@ -1,144 +1,116 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { Spin } from 'antd';
-import Login from './pages/Login';
-import StudentLayout from './layouts/StudentLayout';
-import AdminLayout from './layouts/AdminLayout';
-import { authService } from './services/auth';
+import React from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Spin } from 'antd'
+import { useAuth } from './hooks/useAuth'
 
-/**
- * 路由守卫组件
- * - 未登录 → 跳转 /login
- * - STUDENT 访问管理端路由 → 跳转 /403
- * - ADMIN 访问学生端路由 → 跳转 /admin
- */
-const RouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [checking, setChecking] = useState(true);
-  const location = useLocation();
-  const navigate = useNavigate();
+// Layouts
+import StudentLayout from './layouts/StudentLayout'
+import AdminLayout from './layouts/AdminLayout'
 
-  useEffect(() => {
-    const user = authService.getSavedUser();
+// Pages
+import LoginPage from './pages/Login'
+import ForbiddenPage from './pages/Forbidden'
+import NotFoundPage from './pages/NotFound'
 
-    if (!user) {
-      navigate('/login', { replace: true });
-      return;
-    }
+// Student pages (M2)
+import RoomList from './pages/student/RoomList'
+import RoomDetailPage from './pages/student/RoomDetailPage'
 
-    const path = location.pathname;
+// Admin pages (M2)
+import RoomManage from './pages/admin/RoomManage'
+import SeatManage from './pages/admin/SeatManage'
 
-    // STUDENT 不可访问管理端路由
-    if (path.startsWith('/admin') && user.userType !== 'ADMIN') {
-      navigate('/403', { replace: true });
-      return;
-    }
+// Student placeholder pages
+const StudentSearch: React.FC = () => <div>搜索座位（M5实现）</div>
+const StudentReservations: React.FC = () => <div>我的预约（M3实现）</div>
+const StudentCheckIn: React.FC = () => <div>签到（M4实现）</div>
+const StudentViolations: React.FC = () => <div>违约记录（M4实现）</div>
+const StudentAssistant: React.FC = () => <div>智能助手（M6实现）</div>
 
-    // ADMIN 访问学生端根路径时重定向到 /admin
-    if (path.startsWith('/student') && user.userType === 'ADMIN') {
-      navigate('/admin', { replace: true });
-      return;
-    }
+// Admin placeholder pages
+const AdminDashboard: React.FC = () => <div>仪表盘（M5实现）</div>
+const AdminReservations: React.FC = () => <div>预约管理（M3实现）</div>
+const AdminViolations: React.FC = () => <div>违约管理（M4实现）</div>
+const AdminUsers: React.FC = () => <div>用户管理（M5实现）</div>
+const AdminRoles: React.FC = () => <div>角色管理（M5实现）</div>
+const AdminConfig: React.FC = () => <div>系统参数（M5实现）</div>
+const AdminCheckInCodes: React.FC = () => <div>签到编码（M4实现）</div>
 
-    setChecking(false);
-  }, [location.pathname, navigate]);
-
-  if (checking) {
-    return (
-      <div style={{
-        height: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-        <Spin size="large" />
-      </div>
-    );
+// 路由守卫：需要登录
+const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { loading, isLoggedIn } = useAuth()
+  if (loading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><Spin size="large" /></div>
   }
+  if (!isLoggedIn()) {
+    return <Navigate to="/login" replace />
+  }
+  return <>{children}</>
+}
 
-  return <>{children}</>;
-};
-
-/** 404 页面 */
-const NotFound: React.FC = () => (
-  <div style={{
-    height: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 16,
-  }}>
-    <h1 style={{ fontSize: 72, margin: 0 }}>404</h1>
-    <p>页面不存在</p>
-    <a href="/">返回首页</a>
-  </div>
-);
-
-/** 403 无权限页面 */
-const Forbidden: React.FC = () => (
-  <div style={{
-    height: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 16,
-  }}>
-    <h1 style={{ fontSize: 72, margin: 0 }}>403</h1>
-    <p>无权限访问该页面</p>
-    <a href="/">返回首页</a>
-  </div>
-);
+// 路由守卫：仅管理员
+const RequireAdmin: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { userInfo } = useAuth()
+  if (userInfo?.userType !== 'ADMIN') {
+    return <Navigate to="/403" replace />
+  }
+  return <>{children}</>
+}
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
         {/* 公开路由 */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/404" element={<NotFound />} />
-        <Route path="/403" element={<Forbidden />} />
+        <Route path="/login" element={<LoginPage />} />
 
         {/* 学生端路由 */}
         <Route path="/student" element={
-          <RouteGuard><StudentLayout /></RouteGuard>
+          <RequireAuth>
+            <StudentLayout />
+          </RequireAuth>
         }>
-          <Route index element={
-            <div style={{ padding: 24 }}>
-              <h2>欢迎使用 SeatFlow 学生端</h2>
-              <p>请从左侧菜单选择功能</p>
-            </div>
-          } />
+          <Route index element={<Navigate to="rooms" replace />} />
+          <Route path="rooms" element={<RoomList />} />
+          <Route path="rooms/:id" element={<RoomDetailPage />} />
+          <Route path="search" element={<StudentSearch />} />
+          <Route path="reservations" element={<StudentReservations />} />
+          <Route path="check-in" element={<StudentCheckIn />} />
+          <Route path="violations" element={<StudentViolations />} />
+          <Route path="assistant" element={<StudentAssistant />} />
         </Route>
 
         {/* 管理端路由 */}
         <Route path="/admin" element={
-          <RouteGuard><AdminLayout /></RouteGuard>
+          <RequireAuth>
+            <RequireAdmin>
+              <AdminLayout />
+            </RequireAdmin>
+          </RequireAuth>
         }>
-          <Route index element={
-            <div style={{ padding: 24 }}>
-              <h2>欢迎使用 SeatFlow 管理端</h2>
-              <p>请从左侧菜单选择功能</p>
-            </div>
-          } />
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="rooms" element={<RoomManage />} />
+          <Route path="seats" element={<SeatManage />} />
+          <Route path="seats/:roomId" element={<SeatManage />} />
+          <Route path="reservations" element={<AdminReservations />} />
+          <Route path="violations" element={<AdminViolations />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="roles" element={<AdminRoles />} />
+          <Route path="config" element={<AdminConfig />} />
+          <Route path="check-in-codes" element={<AdminCheckInCodes />} />
         </Route>
 
-        {/* 根路径重定向 */}
-        <Route path="/" element={
-          authService.isLoggedIn()
-            ? <Navigate to={
-                authService.getSavedUser()?.userType === 'ADMIN'
-                  ? '/admin'
-                  : '/student'
-              } replace />
-            : <Navigate to="/login" replace />
-        } />
+        {/* 错误页面 */}
+        <Route path="/403" element={<ForbiddenPage />} />
+        <Route path="/404" element={<NotFoundPage />} />
 
-        {/* 兜底 404 */}
-        <Route path="*" element={<Navigate to="/404" replace />} />
+        {/* 默认跳转 */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
-  );
-};
+  )
+}
 
-export default App;
+export default App
