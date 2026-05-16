@@ -23,6 +23,9 @@ import MyReservations from './pages/student/MyReservations'
 import CheckInPage from './pages/student/CheckInPage'
 import MyViolations from './pages/student/MyViolations'
 
+// Student pages (M6)
+import Assistant from './pages/student/Assistant'
+
 // Admin pages (M2)
 import RoomManage from './pages/admin/RoomManage'
 import SeatManage from './pages/admin/SeatManage'
@@ -41,7 +44,6 @@ import SystemConfigPage from './pages/admin/SystemConfigPage'
 
 // Student placeholder pages
 const StudentSearch: React.FC = () => <div>搜索座位（M5实现）</div>
-const StudentAssistant: React.FC = () => <div>智能助手（M6实现）</div>
 
 // Admin placeholder pages (removed, implemented in M5)
 
@@ -86,7 +88,7 @@ const App: React.FC = () => {
           <Route path="reservations" element={<MyReservations />} />
           <Route path="check-in" element={<CheckInPage />} />
           <Route path="violations" element={<MyViolations />} />
-          <Route path="assistant" element={<StudentAssistant />} />
+          <Route path="assistant" element={<Assistant />} />
         </Route>
 
         {/* 管理端路由 */}
