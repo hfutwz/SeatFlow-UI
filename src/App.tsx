@@ -16,20 +16,24 @@ import NotFoundPage from './pages/NotFound'
 import RoomList from './pages/student/RoomList'
 import RoomDetailPage from './pages/student/RoomDetailPage'
 
+// Student pages (M3)
+import MyReservations from './pages/student/MyReservations'
+
 // Admin pages (M2)
 import RoomManage from './pages/admin/RoomManage'
 import SeatManage from './pages/admin/SeatManage'
 
+// Admin pages (M3)
+import ReservationManage from './pages/admin/ReservationManage'
+
 // Student placeholder pages
 const StudentSearch: React.FC = () => <div>搜索座位（M5实现）</div>
-const StudentReservations: React.FC = () => <div>我的预约（M3实现）</div>
 const StudentCheckIn: React.FC = () => <div>签到（M4实现）</div>
 const StudentViolations: React.FC = () => <div>违约记录（M4实现）</div>
 const StudentAssistant: React.FC = () => <div>智能助手（M6实现）</div>
 
 // Admin placeholder pages
 const AdminDashboard: React.FC = () => <div>仪表盘（M5实现）</div>
-const AdminReservations: React.FC = () => <div>预约管理（M3实现）</div>
 const AdminViolations: React.FC = () => <div>违约管理（M4实现）</div>
 const AdminUsers: React.FC = () => <div>用户管理（M5实现）</div>
 const AdminRoles: React.FC = () => <div>角色管理（M5实现）</div>
@@ -74,7 +78,7 @@ const App: React.FC = () => {
           <Route path="rooms" element={<RoomList />} />
           <Route path="rooms/:id" element={<RoomDetailPage />} />
           <Route path="search" element={<StudentSearch />} />
-          <Route path="reservations" element={<StudentReservations />} />
+          <Route path="reservations" element={<MyReservations />} />
           <Route path="check-in" element={<StudentCheckIn />} />
           <Route path="violations" element={<StudentViolations />} />
           <Route path="assistant" element={<StudentAssistant />} />
@@ -93,7 +97,7 @@ const App: React.FC = () => {
           <Route path="rooms" element={<RoomManage />} />
           <Route path="seats" element={<SeatManage />} />
           <Route path="seats/:roomId" element={<SeatManage />} />
-          <Route path="reservations" element={<AdminReservations />} />
+          <Route path="reservations" element={<ReservationManage />} />
           <Route path="violations" element={<AdminViolations />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="roles" element={<AdminRoles />} />
