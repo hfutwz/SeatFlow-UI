@@ -8,18 +8,20 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
+  const [form] = Form.useForm()
+
   const onFinish = async (values: { username: string; password: string }) => {
     setLoading(true)
     try {
-      const res = await api.post('/auth/login', values)
-      if (res.data.code === 200) {
-        const { token } = res.data.data
+      const res: any = await api.post('/auth/login', values)
+      if (res.code === 200) {
+        const { token } = res.data
         localStorage.setItem('token', token)
 
         // 获取用户信息
-        const meRes = await api.get('/auth/me')
-        if (meRes.data.code === 200) {
-          const userInfo = meRes.data.data
+        const meRes: any = await api.get('/auth/me')
+        if (meRes.code === 200) {
+          const userInfo = meRes.data
           localStorage.setItem('userInfo', JSON.stringify(userInfo))
           message.success('登录成功')
 
@@ -31,10 +33,15 @@ const LoginPage: React.FC = () => {
           }
         }
       } else {
-        message.error(res.data.message || '登录失败')
+        message.error(res.message || '登录失败')
+        // 清空密码，保留用户名
+        form.setFieldsValue({ password: '' })
       }
     } catch (error: any) {
-      message.error(error.response?.data?.message || '登录失败')
+      const msg = error.response?.data?.message || '登录失败，请稍后重试'
+      message.error(msg)
+      // 清空密码，保留用户名
+      form.setFieldsValue({ password: '' })
     } finally {
       setLoading(false)
     }
@@ -55,7 +62,7 @@ const LoginPage: React.FC = () => {
         <Typography.Text type="secondary" style={{ display: 'block', textAlign: 'center', marginBottom: 24 }}>
           自习座位预约系统
         </Typography.Text>
-        <Form onFinish={onFinish} size="large">
+        <Form form={form} onFinish={onFinish} size="large">
           <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
             <Input prefix={<UserOutlined />} placeholder="用户名" />
           </Form.Item>
