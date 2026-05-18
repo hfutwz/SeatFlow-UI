@@ -42,8 +42,8 @@ import UserManage from './pages/admin/UserManage'
 import RoleManage from './pages/admin/RoleManage'
 import SystemConfigPage from './pages/admin/SystemConfigPage'
 
-// Student placeholder pages
-const StudentSearch: React.FC = () => <div>搜索座位（M5实现）</div>
+// Student pages (M5)
+import Search from './pages/student/Search'
 
 // Admin placeholder pages (removed, implemented in M5)
 
@@ -84,7 +84,7 @@ const App: React.FC = () => {
           <Route index element={<Navigate to="rooms" replace />} />
           <Route path="rooms" element={<RoomList />} />
           <Route path="rooms/:id" element={<RoomDetailPage />} />
-          <Route path="search" element={<StudentSearch />} />
+          <Route path="search" element={<Search />} />
           <Route path="reservations" element={<MyReservations />} />
           <Route path="check-in" element={<CheckInPage />} />
           <Route path="violations" element={<MyViolations />} />
