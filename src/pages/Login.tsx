@@ -10,6 +10,9 @@ const LoginPage: React.FC = () => {
 
   const onFinish = async (values: { username: string; password: string }) => {
     setLoading(true)
+    // 清除旧 token，避免旧 token 干扰登录请求
+    localStorage.removeItem('token')
+    localStorage.removeItem('userInfo')
     try {
       const res = await api.post('/auth/login', values)
       if (res.data.code === 200) {
@@ -34,7 +37,8 @@ const LoginPage: React.FC = () => {
         message.error(res.data.message || '登录失败')
       }
     } catch (error: any) {
-      message.error(error.response?.data?.message || '登录失败')
+      const msg = error.response?.data?.message || error.message || '登录失败'
+      message.error(msg)
     } finally {
       setLoading(false)
     }
