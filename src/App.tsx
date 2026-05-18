@@ -41,6 +41,7 @@ import Dashboard from './pages/admin/Dashboard'
 import UserManage from './pages/admin/UserManage'
 import RoleManage from './pages/admin/RoleManage'
 import SystemConfigPage from './pages/admin/SystemConfigPage'
+import CheckInCodeManage from './pages/admin/CheckInCodeManage'
 
 // Student pages (M5)
 import Search from './pages/student/Search'
@@ -109,7 +110,7 @@ const App: React.FC = () => {
           <Route path="users" element={<UserManage />} />
           <Route path="roles" element={<RoleManage />} />
           <Route path="config" element={<SystemConfigPage />} />
-          <Route path="check-in-codes" element={<ViolationManage />} />
+          <Route path="check-in-codes" element={<CheckInCodeManage />} />
         </Route>
 
         {/* 错误页面 */}
