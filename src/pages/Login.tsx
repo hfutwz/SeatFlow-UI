@@ -7,6 +7,7 @@ import api from '../services/api'
 const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const [form] = Form.useForm()
 
   const onFinish = async (values: { username: string; password: string }) => {
     setLoading(true)
@@ -35,10 +36,12 @@ const LoginPage: React.FC = () => {
         }
       } else {
         message.error(res.data.message || '登录失败')
+        form.setFieldsValue({ password: '' })
       }
     } catch (error: any) {
       const msg = error.response?.data?.message || error.message || '登录失败'
       message.error(msg)
+      form.setFieldsValue({ password: '' })
     } finally {
       setLoading(false)
     }
@@ -59,7 +62,7 @@ const LoginPage: React.FC = () => {
         <Typography.Text type="secondary" style={{ display: 'block', textAlign: 'center', marginBottom: 24 }}>
           自习座位预约系统
         </Typography.Text>
-        <Form onFinish={onFinish} size="large">
+        <Form form={form} onFinish={onFinish} size="large">
           <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
             <Input prefix={<UserOutlined />} placeholder="用户名" />
           </Form.Item>
