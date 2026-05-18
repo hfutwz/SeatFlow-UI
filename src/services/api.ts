@@ -24,7 +24,7 @@ api.interceptors.request.use(
 
 // 响应拦截器：统一错误处理
 api.interceptors.response.use(
-  (response) => response.data,
+  (response) => response,
   (error) => {
     if (error.response) {
       const { status, data } = error.response;
