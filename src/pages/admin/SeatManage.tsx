@@ -1,40 +1,61 @@
 import React, { useEffect, useState } from 'react'
 import { Table, Button, Modal, Form, Input, InputNumber, Select, Tag, Space, message, Popconfirm, Card, Typography } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
-import { useParams } from 'react-router-dom'
-import { seatApi } from '../../services/room'
-import type { Seat } from '../../services/room'
+import { seatApi, roomApi } from '../../services/room'
+import type { Seat, Room } from '../../services/room'
 import SeatMap from '../../components/SeatMap/SeatMap'
 
 const { Title } = Typography
 
 const SeatManage: React.FC = () => {
-  const { roomId } = useParams<{ roomId: string }>()
+  const [rooms, setRooms] = useState<Room[]>([])
+  const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null)
   const [seats, setSeats] = useState<Seat[]>([])
   const [loading, setLoading] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingSeat, setEditingSeat] = useState<Seat | null>(null)
   const [form] = Form.useForm()
 
-  const rid = Number(roomId)
+  // 加载自习室列表
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const res = await roomApi.adminList(1, 100)
+        if (res.data.code === 200) {
+          const roomList = res.data.data.records
+          setRooms(roomList)
+          // 默认选中第一个
+          if (roomList.length > 0 && !selectedRoomId) {
+            setSelectedRoomId(roomList[0].id)
+          }
+        }
+      } catch (e) {
+        console.error('获取自习室列表失败', e)
+      }
+    }
+    fetchRooms()
+  }, [])
 
+  // 加载座位
   const fetchSeats = async () => {
-    if (!rid) return
+    if (!selectedRoomId) return
     setLoading(true)
     try {
-      const res = await seatApi.listByRoom(rid)
+      const res = await seatApi.listByRoom(selectedRoomId)
       if (res.data.code === 200) setSeats(res.data.data)
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => { fetchSeats() }, [rid])
+  useEffect(() => { fetchSeats() }, [selectedRoomId])
 
+  const rid = selectedRoomId || 0
   const maxRow = Math.max(...seats.map(s => s.rowNum), 0)
   const maxCol = Math.max(...seats.map(s => s.colNum), 0)
 
   const handleCreate = () => {
+    if (!selectedRoomId) { message.warning('请先选择自习室'); return }
     setEditingSeat(null)
     form.resetFields()
     form.setFieldsValue({ socketType: 'NONE', position: 'MIDDLE' })
@@ -80,7 +101,7 @@ const SeatManage: React.FC = () => {
     { title: '行', dataIndex: 'rowNum', key: 'rowNum', width: 60 },
     { title: '列', dataIndex: 'colNum', key: 'colNum', width: 60 },
     { title: '插座', dataIndex: 'socketType', key: 'socketType', width: 80, render: (v: string) => {
-      const map: Record<string, string> = { NONE: '无', FIXED: '⚡ 固定', TRACK: '🔌 导轨' }
+      const map: Record<string, string> = { NONE: '无', FIXED: '⚡ 固定', MOVABLE: '🔌 导轨', TRACK: '🔌 导轨' }
       return map[v] || v
     }},
     { title: '位置', dataIndex: 'position', key: 'position', width: 80, render: (v: string) => {
@@ -100,8 +121,17 @@ const SeatManage: React.FC = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-        <Title level={4}>座位管理（自习室 #{rid}）</Title>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <Space>
+          <Title level={4} style={{ margin: 0 }}>座位管理</Title>
+          <Select
+            style={{ width: 200 }}
+            placeholder="请选择自习室"
+            value={selectedRoomId || undefined}
+            onChange={(v) => setSelectedRoomId(v)}
+            options={rooms.map(r => ({ value: r.id, label: r.name }))}
+          />
+        </Space>
         <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>新增座位</Button>
       </div>
 
@@ -118,6 +148,7 @@ const SeatManage: React.FC = () => {
         loading={loading}
         pagination={false}
         size="small"
+        locale={{ emptyText: selectedRoomId ? '暂无座位' : '请先选择自习室' }}
       />
 
       <Modal
@@ -141,7 +172,7 @@ const SeatManage: React.FC = () => {
             <Select options={[
               { value: 'NONE', label: '无' },
               { value: 'FIXED', label: '⚡ 固定插座' },
-              { value: 'TRACK', label: '🔌 移动导轨' },
+              { value: 'MOVABLE', label: '🔌 移动导轨' },
             ]} />
           </Form.Item>
           <Form.Item name="position" label="位置标记">

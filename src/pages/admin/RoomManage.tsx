@@ -5,6 +5,11 @@ import { roomApi } from '../../services/room'
 import type { Room } from '../../services/room'
 import dayjs from 'dayjs'
 
+const DEPARTMENTS = [
+  { value: 1, label: '计算机学院' },
+  { value: 2, label: '外国语学院' },
+]
+
 const RoomManage: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([])
   const [total, setTotal] = useState(0)
@@ -32,7 +37,7 @@ const RoomManage: React.FC = () => {
   const handleCreate = () => {
     setEditingRoom(null)
     form.resetFields()
-    form.setFieldsValue({ openTime: dayjs('07:00', 'HH:mm'), closeTime: dayjs('22:00', 'HH:mm') })
+    form.setFieldsValue({ openTime: dayjs('07:00', 'HH:mm'), closeTime: dayjs('22:00', 'HH:mm'), departmentId: null })
     setModalOpen(true)
   }
 
@@ -41,6 +46,7 @@ const RoomManage: React.FC = () => {
     form.setFieldsValue({
       name: room.name,
       location: room.location,
+      departmentId: room.departmentId,
       openTime: room.openTime ? dayjs(room.openTime, 'HH:mm') : null,
       closeTime: room.closeTime ? dayjs(room.closeTime, 'HH:mm') : null,
       status: room.status,
@@ -126,6 +132,13 @@ const RoomManage: React.FC = () => {
           </Form.Item>
           <Form.Item name="location" label="位置">
             <Input />
+          </Form.Item>
+          <Form.Item name="departmentId" label="所属院系">
+            <Select
+              allowClear
+              placeholder="全校共享"
+              options={[...DEPARTMENTS, { value: null, label: '全校共享' }]}
+            />
           </Form.Item>
           <Form.Item name="openTime" label="开放开始时间">
             <TimePicker format="HH:mm" />
